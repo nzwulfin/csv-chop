@@ -11,6 +11,7 @@ ts = str(int(time.time()))
 fpath = 'billing.csv'
 col = "LinkedAccountId"
 
+
 # Open the source CSV doc and pull into a dictionary
 f = open(fpath, 'r')
 reader = csv.DictReader(f)
@@ -22,21 +23,22 @@ reader = csv.DictReader(f)
 # a hacky loop to work around that.  There's probably a better way than opening and
 # closing the file in a different mode for every write.
 for row in reader:
+	need_header = 0
 	acct = row[col]
 	filename = acct + '-' + ts + '-billing.csv'
-
-	if os.path.exists(filename):
-		out = open(filename, 'a')
-		writer = csv.DictWriter(out, fieldnames=reader.fieldnames)
-		writer.writerow(row)
-		out.close()
-
-	else:
-		out = open(filename, 'w')
-		print "Creating " + filename + " now"
+	if not os.path.exists(filename):
+		print "New file, create header"
+		need_header = 1
+                
+	out = open(filename, 'a')
+	if need_header == 1:
+		print "Writing header"
 		header = csv.writer(out)
 		header.writerow(reader.fieldnames)
-		out.close()
+                
+	writer = csv.DictWriter(out, fieldnames=reader.fieldnames)
+	writer.writerow(row)
+	out.close()
 
 
 f.close()
