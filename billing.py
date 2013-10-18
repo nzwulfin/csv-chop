@@ -27,12 +27,11 @@ for row in reader:
 	acct = row[col]
 	filename = acct + '-' + ts + '-billing.csv'
 	if not os.path.exists(filename):
-		print "New file, create header"
 		need_header = 1
                 
-	out = open(filename, 'a')
+	out = open(filename, 'ab')
+	
 	if need_header == 1:
-		print "Writing header"
 		header = csv.writer(out)
 		header.writerow(reader.fieldnames)
                 
