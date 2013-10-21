@@ -11,33 +11,28 @@ ts = str(int(time.time()))
 fpath = 'billing.csv'
 col = "LinkedAccountId"
 
-
 # Open the source CSV doc and pull into a dictionary
 f = open(fpath, 'r')
 reader = csv.DictReader(f)
 
 # Loop through the resulting dictionary, find everything associated with a specific
-# key located in a column and dump to those records to separate files.
+# key located in a column and dump to those records to separate files.  Using the keys
+# list to determine if this is the first time we've seen the key and need to add a 
+# header row to the output file
+keys = []
 
-# Since we are using python 2.6 we can't use the writeheader method so this is mainly
-# a hacky loop to work around that.  There's probably a better way than opening and
-# closing the file in a different mode for every write.
 for row in reader:
-	need_header = 0
-	acct = row[col]
+	acct = row[col] or 'totals'
 	filename = acct + '-' + ts + '-billing.csv'
-	if not os.path.exists(filename):
-		need_header = 1
-                
 	out = open(filename, 'ab')
 	
-	if need_header == 1:
+	if acct not in keys:
 		header = csv.writer(out)
 		header.writerow(reader.fieldnames)
-                
+		keys.append(acct)
+		
 	writer = csv.DictWriter(out, fieldnames=reader.fieldnames)
 	writer.writerow(row)
 	out.close()
-
 
 f.close()
